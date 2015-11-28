@@ -1,0 +1,44 @@
+This application is a Spark Streaming application that reads data from the SparkSink of a Flume Agent
+The Flume Agent has a Kafka source that reads data from Kafka Topic firstTopic
+The Flume Agent writes to the SparkSink and Kafka Topic FlumeTopic
+The application receives the source data in batches of 10 seconds.
+For every batch, 
+1. Prints the data to the screen
+2. Writes the data to HDFS at /user/cloudera/spk
+3. Writes the data to a HBase table named spk (only first 3 columns from soure are used : key, column_1 and column_2)
+
+# Step 1 : Start the flume agent from /home/cloudera/nrt. 
+# ----------------------------------------------------------
+# The nrt.config flume config file should be in /home/cloudera/nrt
+# The plugins.d/lib directory under /home/cloudera/nrt should contain the following 3 jars
+# commons-lang3-3.1.jar  
+# scala-library-2.10.4.jar  
+# spark-streaming-flume-sink_2.10-1.5.0-cdh5.5.0.jar
+# 
+# Flume Agent Command
+flume-ng agent -c flm_conf -f nrt.config -name ag_nrt --plugins-path /home/cloudera/nrt 
+
+# Step 2 : Submit Spark Streaming application using following command from the project/target directory
+# ----------------------------------------------------------
+# For example, if the project SpartNRT is at /home/cloudera/git/SparkNRT then the target directory is /home/cloudera/git/SparkNRT/target
+# The following jars need to be provided to the command 
+# spark-streaming-flume_2.10-1.5.0-cdh5.5.0.jar
+# spark-streaming-flume-sink_2.10-1.5.0-cdh5.5.0.jar
+# Place the 2 jars in a directory such as /home/cloudera/nrt/nrtlib and give the full path as follows
+spark-submit --class com.aaa.sparknrt.StreamNRT --master local[4] --jars /home/cloudera/nrt/nrtlib/spark-streaming-flume_2.10-1.5.0-cdh5.5.0.jar,/home/cloudera/nrt/nrtlib/spark-streaming-flume-sink_2.10-1.5.0-cdh5.5.0.jar  SparkNRT-0.0.1-SNAPSHOT.jar 
+
+# Step 3 : Generate transactions and write to Kafka Topic firstTopic
+# -------------------------------------------------------------------
+# To create a Kafka Topic, use
+# kafka-topics  --create --zookeeper quickstart.cloudera:2181 --replication-factor 1 --partition 1 --topic firstTopic
+# To List the Topics, use
+# kafka-topics --list --zookeeper localhost:2181
+#Kafka Console Producer Command (Use the gen_transactions.py for better testing)
+# Type 3 fields per line. Fields should be separated by pipe
+kafka-console-producer --broker localhost:9092 --topic firstTopic
+
+# I have modified gen_transactions.py in fraud/scripts to accept a second argument which is the batch size
+# The script generates n transactions (the first argument) but pauses for 1 sec after every batch number of transactions
+# The updated script is on git (fraud repository at fraud/scripts)
+python gen_transactions.py 10 5
+
