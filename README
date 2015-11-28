@@ -1,11 +1,11 @@
 This application is a Spark Streaming application that reads data from the SparkSink of a Flume Agent
 The Flume Agent has a Kafka source that reads data from Kafka Topic firstTopic
-The Flume Agent writes to the SparkSink and Kafka Topic FlumeTopic
+The Flume Agent writes to the SparkSink and to the KafkaSink with Topic FlumeTopic
 The application receives the source data in batches of 10 seconds.
 For every batch, 
 1. Prints the data to the screen
 2. Writes the data to HDFS at /user/cloudera/spk
-3. Writes the data to a HBase table named spk (only first 3 columns from soure are used : key, column_1 and column_2)
+3. Writes the data to a HBase table named spk (only first 3 columns from source are used : key, column_1 and column_2)
 
 # Step 1 : Start the flume agent from /home/cloudera/nrt. 
 # ----------------------------------------------------------
