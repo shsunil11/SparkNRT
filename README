@@ -21,7 +21,12 @@ flume-ng agent -c flm_conf -f nrt.config -name ag_nrt --plugins-path /home/cloud
 # Step 2 : Submit Spark Streaming application using following command from the project/target directory
 # ----------------------------------------------------------
 # For example, if the project SpartNRT is at /home/cloudera/git/SparkNRT then the target directory is /home/cloudera/git/SparkNRT/target
-# The following jars need to be provided to the command 
+# For hbase integration with spark, add HBase lib to Spark CLASSPATH as follows and re-start Spark
+# Edit /opt/cloudera/parcels/CDH/lib/spark/bin/compute-classpath.sh
+# to add the line below at the bottom of the file (just above the     echo "$CLASSPATH")
+#              CLASSPATH="$CLASSPATH:/opt/cloudera/parcels/CDH/lib/hbase/lib/*"
+#
+# The following jars need to be provided to the spark-submit command 
 # spark-streaming-flume_2.10-1.5.0-cdh5.5.0.jar
 # spark-streaming-flume-sink_2.10-1.5.0-cdh5.5.0.jar
 # Place the 2 jars in a directory such as /home/cloudera/nrt/nrtlib and give the full path as follows
